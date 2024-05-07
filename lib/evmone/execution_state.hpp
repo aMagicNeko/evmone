@@ -7,6 +7,7 @@
 #include <intx/intx.hpp>
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace evmone
 {
@@ -193,12 +194,22 @@ public:
     }
 
     [[nodiscard]] bool in_static_mode() const { return (msg->flags & EVMC_STATIC) != 0; }
-
-    const evmc_tx_context& get_tx_context() noexcept
+    const evmc_tx_context* __attribute__((optimize("O0")))get_tx_context() noexcept
     {
-        if (INTX_UNLIKELY(m_tx.block_timestamp == 0))
-            m_tx = host.get_tx_context();
-        return m_tx;
+        return host.get_tx_context();
+	    //std::cout << "[get_tx_context] Function called." << std::endl;
+        //std::cout << "this:" << this << std::endl;
+        //if (INTX_UNLIKELY(m_tx.block_timestamp == 0)) {
+            //std::cout << "[get_tx_context] Block timestamp is zero, fetching new tx context." << std::endl;
+            //auto tmp = host.get_tx_context();
+            //m_tx = tmp;
+        //}
+        //else {
+        //    std::cout << "[get_tx_context] Block timestamp is not zero." << std::endl;
+        //}
+        //std::cout << "[get_tx_context] Returning tx context : " << &m_tx << std::endl;
+        //std::cout << "this:" << this << std::endl;
+        //return m_tx;
     }
 };
 }  // namespace evmone

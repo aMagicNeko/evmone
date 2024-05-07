@@ -390,7 +390,7 @@ inline Result balance(StackTop stack, int64_t gas_left, ExecutionState& state) n
 
 inline void origin(StackTop stack, ExecutionState& state) noexcept
 {
-    stack.push(intx::be::load<uint256>(state.get_tx_context().tx_origin));
+    stack.push(intx::be::load<uint256>(state.get_tx_context()->tx_origin));
 }
 
 inline void caller(StackTop stack, ExecutionState& state) noexcept
@@ -492,18 +492,18 @@ inline Result codecopy(StackTop stack, int64_t gas_left, ExecutionState& state) 
 
 inline void gasprice(StackTop stack, ExecutionState& state) noexcept
 {
-    stack.push(intx::be::load<uint256>(state.get_tx_context().tx_gas_price));
+    stack.push(intx::be::load<uint256>(state.get_tx_context()->tx_gas_price));
 }
 
 inline void basefee(StackTop stack, ExecutionState& state) noexcept
 {
-    stack.push(intx::be::load<uint256>(state.get_tx_context().block_base_fee));
+    stack.push(intx::be::load<uint256>(state.get_tx_context()->block_base_fee));
 }
 
 inline void blobhash(StackTop stack, ExecutionState& state) noexcept
 {
     auto& index = stack.top();
-    const auto& tx = state.get_tx_context();
+    const auto& tx = *state.get_tx_context();
 
     index = (index < tx.blob_hashes_count) ?
                 intx::be::load<uint256>(tx.blob_hashes[static_cast<size_t>(index)]) :
@@ -512,7 +512,7 @@ inline void blobhash(StackTop stack, ExecutionState& state) noexcept
 
 inline void blobbasefee(StackTop stack, ExecutionState& state) noexcept
 {
-    stack.push(intx::be::load<uint256>(state.get_tx_context().blob_base_fee));
+    stack.push(intx::be::load<uint256>(state.get_tx_context()->blob_base_fee));
 }
 
 inline Result extcodesize(StackTop stack, int64_t gas_left, ExecutionState& state) noexcept
@@ -638,7 +638,7 @@ inline void blockhash(StackTop stack, ExecutionState& state) noexcept
 {
     auto& number = stack.top();
 
-    const auto upper_bound = state.get_tx_context().block_number;
+    const auto upper_bound = state.get_tx_context()->block_number;
     const auto lower_bound = std::max(upper_bound - 256, decltype(upper_bound){0});
     const auto n = static_cast<int64_t>(number);
     const auto header =
@@ -648,34 +648,37 @@ inline void blockhash(StackTop stack, ExecutionState& state) noexcept
 
 inline void coinbase(StackTop stack, ExecutionState& state) noexcept
 {
-    stack.push(intx::be::load<uint256>(state.get_tx_context().block_coinbase));
+    stack.push(intx::be::load<uint256>(state.get_tx_context()->block_coinbase));
 }
 
 inline void timestamp(StackTop stack, ExecutionState& state) noexcept
 {
+    auto c = state.get_tx_context();
+
     // TODO: Add tests for negative timestamp?
-    stack.push(static_cast<uint64_t>(state.get_tx_context().block_timestamp));
+    stack.push(static_cast<uint64_t>(c->block_timestamp));
 }
 
 inline void number(StackTop stack, ExecutionState& state) noexcept
 {
+    auto n = state.get_tx_context();
     // TODO: Add tests for negative block number?
-    stack.push(static_cast<uint64_t>(state.get_tx_context().block_number));
+    stack.push(static_cast<uint64_t>(n->block_number));
 }
 
 inline void prevrandao(StackTop stack, ExecutionState& state) noexcept
 {
-    stack.push(intx::be::load<uint256>(state.get_tx_context().block_prev_randao));
+    stack.push(intx::be::load<uint256>(state.get_tx_context()->block_prev_randao));
 }
 
 inline void gaslimit(StackTop stack, ExecutionState& state) noexcept
 {
-    stack.push(static_cast<uint64_t>(state.get_tx_context().block_gas_limit));
+    stack.push(static_cast<uint64_t>(state.get_tx_context()->block_gas_limit));
 }
 
 inline void chainid(StackTop stack, ExecutionState& state) noexcept
 {
-    stack.push(intx::be::load<uint256>(state.get_tx_context().chain_id));
+    stack.push(intx::be::load<uint256>(state.get_tx_context()->chain_id));
 }
 
 inline void selfbalance(StackTop stack, ExecutionState& state) noexcept
